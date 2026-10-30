@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CEMS LTD website
 
-## Getting Started
+Company website for **CEMS LTD** (Civil Engineering & Multi-services), Kigali, Rwanda. Built with Next.js (App Router), TypeScript and Tailwind CSS. Content lives in `/content` so it can be edited without a database.
 
-First, run the development server:
+## Setup
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable | Required | Purpose |
+|---|---|---|
+| `RESEND_API_KEY` | For sending mail | Resend API key |
+| `CONTACT_TO_EMAIL` | For sending mail | Inbox that receives enquiries (e.g. `cemsltd2023@gmail.com`) |
+| `RESEND_FROM_EMAIL` | For sending mail | Verified Resend from address, e.g. `CEMS LTD <noreply@cemsltd.com>` |
+| `NEXT_PUBLIC_SITE_URL` | Recommended | Canonical site URL, `https://cemsltd.com` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional | GA4 id such as `G-XXXX`. Analytics is not loaded if this is empty |
 
-## Learn More
+Without Resend keys, the contact form still validates but shows an error asking visitors to call or WhatsApp.
 
-To learn more about Next.js, take a look at the following resources:
+## How to edit content
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| File | What it controls |
+|---|---|
+| [`content/site.ts`](content/site.ts) | Company name, tagline, address, phone, email, map, social placeholders |
+| [`content/about.ts`](content/about.ts) | Mission and values |
+| [`content/services.ts`](content/services.ts) | Four services and their detail pages |
+| [`content/projects.ts`](content/projects.ts) | Project gallery and detail pages |
+| [`content/team.ts`](content/team.ts) | Team grid on About (empty by default — add people to show it) |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Copy the logo into `public/images/logo.jpg` (already done from `cems logo /logo.jpeg`). Drop real photos into `public/images/` and point the paths in the content files at those files.
 
-## Deploy on Vercel
+## How to add a project
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Add image files under `public/images/` (JPEG or PNG).
+2. Open `content/projects.ts` and append an object:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```ts
+{
+  slug: "my-project",           // URL: /projects/my-project
+  title: "Project title",
+  category: "Commercial",       // Commercial | Residential | Roads & Infrastructure | Water Treatment
+  location: "Kicukiro, Kigali",
+  year: 2026,
+  summary: "One sentence for cards and SEO.",
+  description: "Longer text for the detail page.",
+  coverImage: "/images/my-cover.jpg",
+  images: [
+    { src: "/images/my-cover.jpg", alt: "Describe the photo" },
+    { src: "/images/my-detail.jpg", alt: "Describe the photo" },
+  ],
+  featured: true,               // optional — shows on the home page
+}
+```
+
+3. Save and refresh. No rebuild of a database is required.
+
+## Placeholder images
+
+`photos/` is empty, so the site uses generated gradient JPEGs in `public/images/`. To regenerate them:
+
+```bash
+node scripts/generate-placeholders.mjs
+```
+
+Replace those files with real project photos when you have them. The current logo is a photograph of the printed sign; a cropped transparent PNG will look cleaner in the header.
+
+## Deploy to Vercel
+
+1. Push this folder to GitHub.
+2. Import the repo in [Vercel](https://vercel.com/new). Framework preset: Next.js.
+3. Set the environment variables from `.env.example`.
+4. Deploy. Domain: `cemsltd.com`.
+
+Verify the Resend domain (or use a Resend onboarding from-address) before expecting the contact form to email you.
+
+## Scripts
+
+- `npm run dev` — local development
+- `npm run lint` — ESLint
+- `npm run build` — production build
+- `npm run start` — serve the production build
